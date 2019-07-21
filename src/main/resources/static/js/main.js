@@ -4,7 +4,8 @@ var searchButton = document.getElementById("search-btn");
 var searchInput = document.getElementById("search-txt");
 var cityName = document.getElementById("city-name");
 var temperature = document.getElementById("temp");
-var url = "weather/city/";
+var url = "rest/city/";
+// var url = "servlet/city/";
 
 searchButton.addEventListener("click", findWeatherDetails);
 searchInput.addEventListener("keyup", enterPressed);
@@ -18,7 +19,7 @@ function enterPressed(event) {
 function findWeatherDetails() {
     if (searchInput.value === "") {
 
-    }else {
+    } else {
         httpRequestAsync( url + searchInput.value, responseHandler);
     }
 }
@@ -29,9 +30,7 @@ function responseHandler(response) {
     temperature.innerHTML = jsonObject.temperature + "°";
 }
 
-function httpRequestAsync(url, callback)
-{
-    console.log("hello");
+function httpRequestAsync(url, callback) {
     var httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = function () {
         if (httpRequest.readyState == 4 && httpRequest.status == 200) {
@@ -44,6 +43,6 @@ function httpRequestAsync(url, callback)
             alert("Ошибка: 404 not found");
         }
     }
-    httpRequest.open("GET", url, true); // true for asynchronous
+    httpRequest.open("GET", url, true);
     httpRequest.send();
 }

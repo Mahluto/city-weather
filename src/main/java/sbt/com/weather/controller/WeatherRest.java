@@ -11,7 +11,7 @@ import sbt.com.weather.service.WeatherService;
 
 
 @RestController
-@RequestMapping("weather")
+@RequestMapping("rest")
 public class WeatherRest {
 
     @Autowired

@@ -1,10 +1,13 @@
 package sbt.com.weather.dao;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import sbt.com.weather.db.WeatherRepository;
+import sbt.com.weather.db.entities.WeatherHistory;
 import sbt.com.weather.model.Weather;
 
 import org.springframework.http.HttpEntity;
@@ -20,6 +23,9 @@ import java.util.Arrays;
 @Component("weatherDAO")
 public class WeatherDAO {
 
+    @Autowired
+    private WeatherRepository repository;
+
     private String APIKEY = "f24f40b1c24505685fce3b8acd0fcffc";
     private HttpHeaders headers = new HttpHeaders();
 
@@ -33,9 +39,9 @@ public class WeatherDAO {
         return uriComponents.toUri();
     }
 
-    public String responseToOpenWeatherMap(String cityName) throws RestClientException{
+    public String responseToOpenWeatherMap(String cityName) throws RestClientException {
         headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<String> response = restTemplate.exchange(buildUrl(cityName), HttpMethod.GET, entity, String.class);
@@ -44,11 +50,13 @@ public class WeatherDAO {
         return response.getBody();
     }
 
-    public Weather getCityTemperature(String cityName){
+    public Weather getCityTemperature(String cityName) throws RestClientException {
         Weather weather = new Weather();
         JSONObject json = new JSONObject(responseToOpenWeatherMap(cityName));
         Float temp = json.optJSONObject("main").optFloat("temp");
+        repository.save(new WeatherHistory(cityName, Integer.toString(temp.intValue() - 273)));
         weather.setTemperature(Integer.toString(temp.intValue() - 273));
+
         return weather;
     }
 }
