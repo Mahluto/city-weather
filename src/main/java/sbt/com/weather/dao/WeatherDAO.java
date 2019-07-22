@@ -52,10 +52,18 @@ public class WeatherDAO {
 
     public Weather getCityTemperature(String cityName) throws RestClientException {
         Weather weather = new Weather();
-        JSONObject json = new JSONObject(responseToOpenWeatherMap(cityName));
-        Float temp = json.optJSONObject("main").optFloat("temp");
-        repository.save(new WeatherHistory(cityName, Integer.toString(temp.intValue() - 273)));
-        weather.setTemperature(Integer.toString(temp.intValue() - 273));
+        String cityNameInLowerCase = cityName.toLowerCase();
+        WeatherHistory temperatureRecord = repository.findByCityName(cityNameInLowerCase);
+
+        if (temperatureRecord != null) {
+            weather.setTemperature(temperatureRecord.getTemperature());
+        } else {
+            JSONObject json = new JSONObject(responseToOpenWeatherMap(cityNameInLowerCase));
+            Float temp = json.optJSONObject("main").optFloat("temp");
+
+            repository.save(new WeatherHistory(cityNameInLowerCase, Integer.toString(temp.intValue() - 273)));
+            weather.setTemperature(Integer.toString(temp.intValue() - 273));
+        }
 
         return weather;
     }
